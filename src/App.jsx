@@ -1,33 +1,17 @@
 import { useEffect } from "react";
 import frag from "./glsl/index.frag";
 import vert from "./glsl/index.vert";
-
+import { createShader, createProgram } from "@utils";
 function App() {
   useEffect(() => {
-    var canvas = document.querySelector("#canvas");
-    var gl =
+    const canvas = document.querySelector("#canvas");
+    const gl =
       canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
 
-    // 创建顶点着色器对象
-    var vertexShader = gl.createShader(gl.VERTEX_SHADER);
-    // 将源码分配给顶点着色器对象
-    gl.shaderSource(vertexShader, vert);
-    // 编译顶点着色器程序
-    gl.compileShader(vertexShader);
-    // 创建片元着色器程序
-    var fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
-    // 将源码分配给片元着色器对象
-    gl.shaderSource(fragmentShader, frag);
-    // 编译片元着色器
-    gl.compileShader(fragmentShader);
+    const vertShader = createShader(gl, gl.VERTEX_SHADER, vert);
+    const fragShader = createShader(gl, gl.FRAGMENT_SHADER, frag);
     //创建着色器程序
-    var program = gl.createProgram();
-    //将顶点着色器挂载在着色器程序上。
-    gl.attachShader(program, vertexShader);
-    //将片元着色器挂载在着色器程序上。
-    gl.attachShader(program, fragmentShader);
-    //链接着色器程序
-    gl.linkProgram(program);
+    const program = createProgram(gl, vertShader, fragShader);
     // 使用刚创建好的着色器程序。
     gl.useProgram(program);
     //设置清空画布颜色为黑色。
