@@ -64,7 +64,7 @@ function App() {
               gl.STATIC_DRAW
             );
             gl.clear(gl.COLOR_BUFFER_BIT);
-            gl.drawArrays(gl.LINE_STRIP, 0, point.length / 2);
+            gl.drawArrays(gl.LINE_LOOP, 0, point.length / 2);
           }
         }}
       ></canvas>
