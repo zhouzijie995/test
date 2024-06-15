@@ -2,11 +2,15 @@ import { useEffect, useRef } from "react";
 import frag from "./glsl/index.frag";
 import vert from "./glsl/index.vert";
 import { createShader, createProgram } from "@utils";
+import { randomColor } from "../utils";
 // 定义三个顶点
 const point = [];
+const colorList = [];
 function App() {
   const glRef = useRef(null);
   const programRef = useRef(null);
+  const positionBufferRef = useRef(null);
+  const colorBufferRef = useRef(null);
   useEffect(() => {
     const canvas = document.querySelector("#canvas");
     const gl =
@@ -21,25 +25,27 @@ function App() {
     gl.useProgram(program);
 
     const a_Position = gl.getAttribLocation(program, "a_Position");
+    const a_color = gl.getAttribLocation(program, "a_color");
     // 读取宽高
     const a_ScreenSize = gl.getAttribLocation(program, "a_ScreenSize");
     // 给宽高赋值
     gl.vertexAttrib2f(a_ScreenSize, canvas.width, canvas.height);
-    // 创建缓冲区
-    const buffer = gl.createBuffer();
-
+    // 创建位置缓冲区
+    const positionBuffer = gl.createBuffer();
+    positionBufferRef.current = positionBuffer;
     // 绑定缓冲区
-    gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
-    // 将数据写入缓冲区
-
     gl.enableVertexAttribArray(a_Position);
-    // 传递数据
-    const size = 2; // 每次取两个数据
-    const type = gl.FLOAT; // 数据类型
-    const normalize = false; // 是否归一化
-    const stride = 0; // 间隔
-    const offset = 0; // 偏移量
-    gl.vertexAttribPointer(a_Position, size, type, normalize, stride, offset);
+    gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+
+    gl.vertexAttribPointer(a_Position, 2, gl.FLOAT, false, 0, 0);
+    // 创建颜色缓冲区
+    const colorBuffer = gl.createBuffer();
+    colorBufferRef.current = colorBuffer;
+    // 绑定缓冲区
+    gl.enableVertexAttribArray(a_color);
+    gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
+    gl.vertexAttribPointer(a_color, 4, gl.FLOAT, false, 0, 0);
+
     //设置清空画布颜色为黑色。
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
     //用上一步设置的清空画布颜色清空画布。
@@ -55,16 +61,36 @@ function App() {
           const x = e.pageX;
           const y = e.pageY;
           point.push(x, y);
-          const gl = glRef.current;
+          const temp_color = randomColor();
+          colorList.push(
+            temp_color.r,
+            temp_color.g,
+            temp_color.b,
+            temp_color.a
+          );
+
           if (point.length > 0) {
-            // webgl浮点数占用4个字节， 32位
+            const gl = glRef.current;
+            const positionBuffer = positionBufferRef.current;
+            const colorBuffer = colorBufferRef.current;
+            // 每次要重新bindBuffer
+            gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+            // 将动态改为静态
             gl.bufferData(
               gl.ARRAY_BUFFER,
               new Float32Array(point),
               gl.STATIC_DRAW
             );
-            gl.clear(gl.COLOR_BUFFER_BIT);
-            gl.drawArrays(gl.LINE_LOOP, 0, point.length / 2);
+            gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
+            gl.bufferData(
+              gl.ARRAY_BUFFER,
+              new Float32Array(colorList),
+              gl.STATIC_DRAW
+            );
+            if (point.length % 6 === 0) {
+              gl.clear(gl.COLOR_BUFFER_BIT);
+              gl.drawArrays(gl.TRIANGLES, 0, point.length / 2);
+            }
           }
         }}
       ></canvas>
