@@ -44,23 +44,30 @@ function App() {
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
     //用上一步设置的清空画布颜色清空画布。
     gl.clear(gl.COLOR_BUFFER_BIT);
-    canvas.addEventListener("click", (e) => {
-      const x = e.pageX;
-      const y = e.pageY;
-      point.push(x, y);
-      if (point.length % 6 === 0) {
-        // webgl浮点数占用4个字节， 32位
-        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(point), gl.STATIC_DRAW);
-        gl.clear(gl.COLOR_BUFFER_BIT);
-        gl.drawArrays(gl.TRIANGLES, 0, point.length / 2);
-      }
-    });
-    // 绘制
-    gl.drawArrays(gl.TRIANGLES, 0, 3);
   }, []);
   return (
     <>
-      <canvas width={500} height={500} id="canvas"></canvas>
+      <canvas
+        width={500}
+        height={500}
+        id="canvas"
+        onClick={(e) => {
+          const x = e.pageX;
+          const y = e.pageY;
+          point.push(x, y);
+          const gl = glRef.current;
+          if (point.length % 6 === 0) {
+            // webgl浮点数占用4个字节， 32位
+            gl.bufferData(
+              gl.ARRAY_BUFFER,
+              new Float32Array(point),
+              gl.STATIC_DRAW
+            );
+            gl.clear(gl.COLOR_BUFFER_BIT);
+            gl.drawArrays(gl.TRIANGLES, 0, point.length / 2);
+          }
+        }}
+      ></canvas>
     </>
   );
 }
