@@ -56,7 +56,7 @@ function App() {
           const y = e.pageY;
           point.push(x, y);
           const gl = glRef.current;
-          if (point.length % 6 === 0) {
+          if (point.length > 0) {
             // webgl浮点数占用4个字节， 32位
             gl.bufferData(
               gl.ARRAY_BUFFER,
@@ -64,7 +64,7 @@ function App() {
               gl.STATIC_DRAW
             );
             gl.clear(gl.COLOR_BUFFER_BIT);
-            gl.drawArrays(gl.TRIANGLES, 0, point.length / 2);
+            gl.drawArrays(gl.LINES, 0, point.length / 2);
           }
         }}
       ></canvas>
